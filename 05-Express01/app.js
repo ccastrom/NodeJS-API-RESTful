@@ -1,5 +1,6 @@
 const express=require('express');
 const app=express();
+const Joi=require('joi');
 app.use(express.json());
 const usuarios= [{id:1,nombre:"Claudio"},
                  {id:2,nombre:"Pepe"},
@@ -18,17 +19,34 @@ app.get('/api/usuarios/:id',(req,res)=>{
   res.send(usuario);
 })
 app.post('/api/usuarios',(req,res)=>{
-    if(!req.body.nombre ||req.body.nombre.length<=2){
-        //400 Bad Request
-        res.status(400).send('Debe ingresar un nombre, que tenga minimo 3 letras');
-        return;
+    const schema = Joi.object({
+        nombre: Joi.string().min(3).required()
+    });
+    const {error,value}=schema.validate({ nombre:req.body.nombre});
+    if(!error){
+        const usuario={
+            id:usuarios.length+1,
+            nombre:value
+        };
+        usuarios.push(usuario);
+        res.send(usuario);
+        
+    }else{
+        const message=error.details[0].message;
+        res.status(400).send(message);
     }
-    const usuario={
-        id:usuarios.length+1,
-        nombre:req.body.nombre
-    };
-    usuarios.push(usuario);
-    res.send(usuario);
+
+           
+          
+           
+           
+
+    // if(!req.body.nombre ||req.body.nombre.length<=2){
+    //     //400 Bad Request
+    //     res.status(400).send('Debe ingresar un nombre, que tenga minimo 3 letras');
+    //     return;
+    // }
+   
 })
 const port =process.env.PORT || 3000
 app.listen(port,()=>{
