@@ -23,7 +23,7 @@ app.get('/api/usuarios',(req,res)=>{
  * Petición get para obtener un usuario de la lista definida según un parametro
  */
 app.get('/api/usuarios/:id',(req,res)=>{
-  let usuario=usuarios.find(u=>u.id== parseInt(req.params.id));
+  let usuario=existeUsuario(req.params.id)
   if(!usuario) res.status(404).send('El usuario no fue encontrado');
   res.send(usuario);
 })
@@ -34,13 +34,13 @@ app.post('/api/usuarios',(req,res)=>{
     const schema = Joi.object({
         nombre: Joi.string().min(3).required()
     });
-    const {error,value}=schema.validate({ nombre:req.body.nombre});
+    const {error,value}=validarUsuario(req.body.nombre);
     if(!error){
         const usuario={
             id:usuarios.length+1,
-            nombre:value
+            nombre:value.nombre
         };
-        usuarios.push(usuario);//Añadir usuario a la lisa
+        usuarios.push(usuario);//Añadir usuario a la lista
         res.send(usuario);
         
     }else{
@@ -49,14 +49,12 @@ app.post('/api/usuarios',(req,res)=>{
     }
 })
 app.put('/api/usuarios/:id',(req,res)=>{
-    //Encontrar si existe el objeto usuario
-    let usuario=usuarios.find(u=>u.id== parseInt(req.params.id));
-    if(!usuario) res.status(404).send('El usuario no fue encontrado');
-    
-    const schema = Joi.object({
-        nombre: Joi.string().min(3).required()
-    });
-    const {error,value}=schema.validate({ nombre:req.body.nombre});
+    let usuario = existeUsuario(req.params.id);
+    if(!usuario){
+        res.status(404).send('El usuario no fue encontrado');
+        return;
+    } 
+    const {error,value}= validarUsuario(req.body.nombre);
     if(error){
         const message=error.details[0].message;
         res.status(400).send(message);
@@ -71,3 +69,12 @@ app.listen(port,()=>{
     console.log("Escuchando desde el puerto: "+port);
 })
 
+function existeUsuario(id){
+    return (usuario=usuarios.find(u=>u.id== parseInt(id)));
+}
+function validarUsuario(name){
+    const schema = Joi.object({
+        nombre: Joi.string().min(3).required()
+    });
+    return schema.validate({ nombre:name});
+}
