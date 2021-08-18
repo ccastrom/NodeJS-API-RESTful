@@ -17,7 +17,7 @@ res.send("Hola mundo desde Express.");
 });
 /**Petición get para obtener como respuesta una lista de usuarios definidas */
 app.get('/api/usuarios',(req,res)=>{
-    res.send(['grover','luis','anna','frank']);
+    res.send(usuarios);
 })
 /**
  * Petición get para obtener un usuario de la lista definida según un parametro
@@ -47,6 +47,24 @@ app.post('/api/usuarios',(req,res)=>{
         const message=error.details[0].message;
         res.status(400).send(message);
     }
+})
+app.put('/api/usuarios/:id',(req,res)=>{
+    //Encontrar si existe el objeto usuario
+    let usuario=usuarios.find(u=>u.id== parseInt(req.params.id));
+    if(!usuario) res.status(404).send('El usuario no fue encontrado');
+    
+    const schema = Joi.object({
+        nombre: Joi.string().min(3).required()
+    });
+    const {error,value}=schema.validate({ nombre:req.body.nombre});
+    if(error){
+        const message=error.details[0].message;
+        res.status(400).send(message);
+        return;
+    }
+    usuario.nombre=value.nombre;
+    res.send(usuario);
+
 })
 const port =process.env.PORT || 3000
 app.listen(port,()=>{
