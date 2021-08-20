@@ -1,7 +1,10 @@
 const express=require('express');
+const logger=requere('./logger.js');
 const app=express();
 const Joi=require('joi');
 app.use(express.json());
+
+app.use(logger);
 /**
  * Se define un arreglo con usuarios genericos
  */
