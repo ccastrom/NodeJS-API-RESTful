@@ -3,6 +3,7 @@ const logger=require('./logger.js');
 const app=express();
 const Joi=require('joi');
 app.use(express.json());
+app.use(express.urlencoded({extended:true}));
 
 app.use(logger);
 /**
