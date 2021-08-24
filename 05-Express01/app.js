@@ -1,11 +1,17 @@
 const express=require('express');
-const logger=require('./logger.js');
+//const logger=require('./logger.js');
+const morgan=require('morgan');
 const app=express();
 const Joi=require('joi');
 app.use(express.json());
 app.use(express.urlencoded({extended:true}));
+app.use(express.static('public'));
 
-app.use(logger);
+//uso de middleware de terceros
+app.use(morgan('tiny'));
+console.log('Morgan habilitado');
+
+//app.use(logger);
 /**
  * Se define un arreglo con usuarios genericos
  */
